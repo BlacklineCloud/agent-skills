@@ -1,0 +1,14 @@
+.DS_Store
+.idea/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.venv/
+.coverage
+build/
+dist/
+*.egg-info/
+
+.codex-dev-home/
+.agents/plugins/marketplace.json

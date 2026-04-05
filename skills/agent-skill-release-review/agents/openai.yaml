@@ -1,0 +1,5 @@
+interface:
+  display_name: "Agent Skill Release Review"
+  short_description: "Review agent skills and plugins for release readiness"
+  default_prompt: "Review this skill or plugin for public OSS release readiness."
+
