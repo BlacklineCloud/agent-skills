@@ -1,0 +1,4 @@
+interface:
+  display_name: "EventStorming"
+  short_description: "Run EventStorming, document-first pre-work, and canonical EventStorming handoffs"
+  default_prompt: "Use $event-storming to run Big Picture, Process Modelling, or Software Design EventStorming, prepare document-first EventStorming pre-work from business materials, and produce a canonical EventStorming handoff with Mermaid diagrams."
