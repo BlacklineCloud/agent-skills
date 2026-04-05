@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import re
 import sys
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
 
 VALID_FORMATS = {
     "Big Picture EventStorming": {
@@ -304,8 +304,9 @@ def validate_file(path: Path) -> list[str]:
     if format_name is None:
         return errors
 
-    validate_section_order(sections, VALID_FORMATS[format_name]["required_sections"], errors)
-    validate_required_bodies(text, sections, VALID_FORMATS[format_name]["required_sections"], errors)
+    required_sections = VALID_FORMATS[format_name]["required_sections"]
+    validate_section_order(sections, required_sections, errors)
+    validate_required_bodies(text, sections, required_sections, errors)
     blocks = validate_mermaid_fences(text, errors)
     validate_diagrams(format_name, text, sections, blocks, errors)
     validate_labels(text, errors)
