@@ -173,4 +173,4 @@ For CI pull requests, the workflow runs changed-only validation. Pushes to `main
 - Support expectations: [SUPPORT.md](SUPPORT.md)
 - Community conduct: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
 
-See [docs/conventions.md](docs/conventions.md), [docs/official-creator-workflow.md](docs/official-creator-workflow.md), and [docs/github-maintainer-setup.md](docs/github-maintainer-setup.md) for the maintainer workflow and GitHub-side release setup.
+See [docs/conventions.md](docs/conventions.md) and [docs/official-creator-workflow.md](docs/official-creator-workflow.md) for the maintainer workflow.
