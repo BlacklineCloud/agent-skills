@@ -227,7 +227,8 @@ Body.
             valid_skill.joinpath("SKILL.md").write_text(
                 """---
 name: valid-skill
-description: Review a public skill release with narrow scope, repository checks, and CI expectations.
+description: Review a public skill release with narrow scope, repository
+  checks, and CI expectations.
 ---
 
 # Valid Skill
@@ -247,4 +248,3 @@ Updated body.
 
 if __name__ == "__main__":
     unittest.main()
-

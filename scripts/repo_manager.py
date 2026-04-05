@@ -8,10 +8,9 @@ import re
 import shutil
 import subprocess
 import sys
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Iterable
-
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SKILLS_ROOT = REPO_ROOT / "skills"
@@ -74,7 +73,7 @@ class ValidationResult:
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
 
-    def extend(self, other: "ValidationResult") -> None:
+    def extend(self, other: ValidationResult) -> None:
         self.errors.extend(other.errors)
         self.warnings.extend(other.warnings)
 
@@ -171,7 +170,11 @@ def list_skill_dirs() -> list[Path]:
 def list_plugin_dirs() -> list[Path]:
     if not PLUGINS_ROOT.exists():
         return []
-    return sorted(path for path in PLUGINS_ROOT.iterdir() if (path / ".codex-plugin" / "plugin.json").is_file())
+    return sorted(
+        path
+        for path in PLUGINS_ROOT.iterdir()
+        if (path / ".codex-plugin" / "plugin.json").is_file()
+    )
 
 
 def ensure_parent(path: Path) -> None:
@@ -265,29 +268,36 @@ def validate_skill_dir(skill_dir: Path) -> ValidationResult:
             )
         if not re.fullmatch(r"[a-z0-9-]+", name):
             result.errors.append(
-                f"{skill_file} frontmatter name must be hyphen-case using lowercase letters, digits, and hyphens."
+                f"{skill_file} frontmatter name must be hyphen-case "
+                "using lowercase letters, digits, and hyphens."
             )
         if name.startswith("-") or name.endswith("-") or "--" in name:
             result.errors.append(
-                f"{skill_file} frontmatter name cannot start/end with hyphen or contain consecutive hyphens."
+                f"{skill_file} frontmatter name cannot start/end "
+                "with hyphen or contain consecutive hyphens."
             )
 
         normalized_name = normalize_slug(name)
         if normalized_name != skill_dir.name:
             result.warnings.append(
-                f"{skill_dir.name}: folder name does not match normalized skill name {normalized_name!r}."
+                f"{skill_dir.name}: folder name does not match "
+                f"normalized skill name {normalized_name!r}."
             )
 
     if description and ("<" in description or ">" in description):
         result.errors.append(f"{skill_file} description cannot contain angle brackets.")
     if description and len(description) > 1024:
         result.errors.append(
-            f"{skill_file} description is too long ({len(description)} characters). Maximum is 1024."
+            f"{skill_file} description is too long "
+            f"({len(description)} characters). Maximum is 1024."
         )
 
     for blocked_name in BLOCKED_SKILL_DOCS:
         if (skill_dir / blocked_name).exists():
-            result.errors.append(f"{skill_dir.name}: remove {blocked_name} from the skill directory.")
+            result.errors.append(
+                f"{skill_dir.name}: remove {blocked_name} "
+                "from the skill directory."
+            )
 
     return result
 
@@ -320,7 +330,13 @@ def validate_plugin_dir(plugin_dir: Path) -> ValidationResult:
     if not isinstance(interface, dict):
         result.errors.append(f"{manifest_path} is missing an 'interface' object.")
     else:
-        for key in ("displayName", "shortDescription", "longDescription", "developerName", "category"):
+        for key in (
+            "displayName",
+            "shortDescription",
+            "longDescription",
+            "developerName",
+            "category",
+        ):
             if not str(interface.get(key, "")).strip():
                 result.errors.append(f"{manifest_path} interface is missing {key!r}.")
 
@@ -357,7 +373,8 @@ def lint_skill_metadata(skill_dirs: Iterable[Path]) -> ValidationResult:
         description_key = item.description.strip().lower()
         if description_key in descriptions:
             result.errors.append(
-                f"Duplicate skill description in {descriptions[description_key].name} and {item.folder}."
+                "Duplicate skill description in "
+                f"{descriptions[description_key].name} and {item.folder}."
             )
         else:
             descriptions[description_key] = item.path
@@ -493,12 +510,17 @@ def activate_skill(name_or_path: str) -> None:
 
 
 def activate_plugin(name_or_path: str) -> None:
-    plugin_dir = resolve_named_dir(PLUGINS_ROOT, name_or_path, Path(".codex-plugin/plugin.json"))
+    plugin_dir = resolve_named_dir(
+        PLUGINS_ROOT,
+        name_or_path,
+        Path(".codex-plugin/plugin.json"),
+    )
     validation = validate_plugin_dir(plugin_dir)
     if not validation.ok:
         raise SystemExit(render_result(validation))
 
-    manifest = json.loads((plugin_dir / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
+    manifest_path = plugin_dir / ".codex-plugin" / "plugin.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     category = str(manifest.get("interface", {}).get("category", "Productivity"))
 
     clear_directory(DEV_PLUGINS_ROOT)
@@ -543,7 +565,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    activate_skill_parser = subparsers.add_parser("activate-skill", help="Expose one skill to the dev runtime.")
+    activate_skill_parser = subparsers.add_parser(
+        "activate-skill",
+        help="Expose one skill to the dev runtime.",
+    )
     activate_skill_parser.add_argument("name_or_path")
 
     activate_plugin_parser = subparsers.add_parser(
@@ -592,7 +617,11 @@ def main() -> int:
         return render_result(validate_skill_dir(target))
 
     if args.command == "validate-plugin":
-        target = resolve_named_dir(PLUGINS_ROOT, args.name_or_path, Path(".codex-plugin/plugin.json"))
+        target = resolve_named_dir(
+            PLUGINS_ROOT,
+            args.name_or_path,
+            Path(".codex-plugin/plugin.json"),
+        )
         return render_result(validate_plugin_dir(target))
 
     if args.command == "validate-changed":
